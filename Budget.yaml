@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  BudgetLimit:
+    Type: String
+    Description: Budget Limit per month in USD
+  Email:
+    Type: String
+    Description: Email to receive the Budget Alerts
+  StartDateTime:
+    Type: String
+    Description: Timestamp of StartDate
+  EndDateTime:
+    Type: String
+    Description: Timestamp of EndDate
+
+Resources:
+  BudgetExample:
+    Type: "AWS::Budgets::Budget"
+    Properties:
+      Budget:
+        BudgetLimit:
+          Amount: !Ref BudgetLimit
+          Unit: USD
+        TimeUnit: MONTHLY
+        # https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_budgets_TimePeriod.html
+        TimePeriod:
+          Start: !Ref StartDateTime
+          End: !Ref EndDateTime
+        BudgetType: COST
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref Email
